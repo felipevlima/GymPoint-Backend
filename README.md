@@ -32,6 +32,16 @@
 * Use eslint/prettier last version to integrate with VSCode (fix issue with Eslint 6+ and Prettier)
 * Use Sucrase [https://github.com/alangpierce/sucrase] as a super-fast alternative to Babel
 
+### Docker
+
+* Create Docker Postgres
+```bash
+docker run --name database -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres:11
+```
+* Create Docket Redis
+```bash
+docker run --name redisbarber -p 6379:6379 -d -t redis:alpine
+```
 
 ### :outbox_tray: Sequelize-cli
 * Create Migrations
