@@ -6,7 +6,7 @@
   API: GymPoint
 </h3>
 
-<p align="center">API Version: 1.0.0-alpha</p>
+<p align="center">API Version: 1.0.1-alpha</p>
 
 ### :computer: Functionalidades
 
@@ -20,7 +20,7 @@
 * Use https://mailtrap.io to send emails on Development environment
 * Use Sentry as bug tracker/monitoring
 * Custom error handler middleware with styled errors using Youch
-* .env variables using dotenv 
+* .env variables using dotenv
 
 ### :minidisc: Databases
 * Postgres (sequelize) for Authentication
