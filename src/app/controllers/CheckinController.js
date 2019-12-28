@@ -1,8 +1,9 @@
-import { subDays, startOfDay, endOfDay, isAfter } from 'date-fns';
 import { Op } from 'sequelize';
+import moment from 'moment';
+
+import Enrollment from '../models/Enrollment';
 import Checkin from '../models/Checkin';
 import Student from '../models/Student';
-import Enrollment from '../models/Enrollment';
 
 class CheckinController {
 	async store(req, res) {
@@ -24,31 +25,28 @@ class CheckinController {
 				.json({ error: 'Student does not have an enrollment.' });
 		}
 
-		if (isAfter(new Date(), enrollment.end_date)) {
-			return res.status(400).json({ error: 'Enrollment end_date is past' });
-		}
-
-		const countCheckinExists = await Checkin.count({
+		const checkDate = await Checkin.findAll({
 			where: {
 				student_id: studentId,
 				createdAt: {
-					[Op.between]: [
-						startOfDay(subDays(new Date(), 7)),
-						endOfDay(new Date()),
-					],
+					[Op.gte]: moment()
+						.subtract(7, 'days')
+						.toDate(),
 				},
 			},
 		});
 
-		if (countCheckinExists === 5) {
-			return res.status(400).json({ error: 'Already have 5 checkin' });
+		if (checkDate.length >= 5) {
+			return res
+				.status(401)
+				.json({ error: 'Only 5 checkins allowed within 7 days', checkDate });
 		}
 
-		const { id, student_id, createdAt } = await Checkin.create({
+		const checkin = await Checkin.create({
 			student_id: studentId,
 		});
 
-		return res.json({ id, student_id, createdAt });
+		return res.json(checkin);
 	}
 
 	async index(req, res) {
@@ -71,9 +69,24 @@ class CheckinController {
 		}
 
 		const checkins = await Checkin.findAll({
-			where: { student_id: studentId },
-			attributes: ['id', 'createdAt'],
+			where: {
+				student_id: studentId,
+				createdAt: {
+					[Op.gte]: moment()
+						.subtract(7, 'days')
+						.toDate(),
+				},
+			},
+			order: [['id', 'DESC']],
+			include: [
+				{
+					model: Student,
+					as: 'student',
+					attributes: ['name'],
+				},
+			],
 		});
+
 		return res.json(checkins);
 	}
 }

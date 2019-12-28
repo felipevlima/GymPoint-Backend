@@ -3,6 +3,7 @@ import { Router } from 'express';
 // controllers
 import StudentController from './app/controllers/StudentController';
 import SessionController from './app/controllers/SessionController';
+import StudentSessionController from './app/controllers/StudentSessionController';
 import PlanController from './app/controllers/PlanController';
 import EnrollmentController from './app/controllers/EnrollmentController';
 import CheckinController from './app/controllers/CheckinController';
@@ -16,6 +17,7 @@ const routes = new Router();
 
 // rotas
 routes.post('/sessions', SessionController.store);
+routes.post('/studentlogin', StudentSessionController.store);
 
 routes.post('/students/:studentId/checkins', CheckinController.store);
 routes.get('/students/:studentId/checkins', CheckinController.index);
@@ -45,6 +47,7 @@ routes.delete('/plans/:planId', PlanController.delete);
 
 routes.post('/enrollments', EnrollmentController.store);
 routes.get('/enrollments', EnrollmentController.index);
+routes.get('/enrollments/:enrollmentId', EnrollmentController.find);
 routes.put('/enrollments/:enrollmentId', EnrollmentController.update);
 routes.delete('/enrollments/:enrollmentId', EnrollmentController.delete);
 

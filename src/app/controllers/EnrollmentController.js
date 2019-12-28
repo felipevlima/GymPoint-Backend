@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { parseISO, isBefore, addMonths, startOfDay, endOfDay } from 'date-fns';
-import moment from 'moment';
+
 import Enrollment from '../models/Enrollment';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
@@ -15,7 +15,7 @@ class EnrollmentController {
 		const schema = Yup.object().shape({
 			student_id: Yup.number().required(),
 			plan_id: Yup.number().required(),
-			start_date: Yup.string().required(),
+			start_date: Yup.date().required(),
 		});
 
 		if (!(await schema.isValid(req.body))) {
@@ -34,9 +34,9 @@ class EnrollmentController {
 
 		const date = req.body.start_date;
 
-		const time = moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+		// const time = moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
-		const start_date = startOfDay(parseISO(time));
+		const start_date = startOfDay(parseISO(date));
 		if (isBefore(start_date, startOfDay(new Date()))) {
 			return res
 				.status(400)
@@ -115,6 +115,28 @@ class EnrollmentController {
 		return res.json({ enrolments });
 	}
 
+	async find(req, res) {
+		const { enrollmentId } = req.params;
+
+		const enrollments = await Enrollment.findByPk(enrollmentId, {
+			attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
+			include: [
+				{
+					model: Student,
+					as: 'student',
+					attributes: ['id', 'name', 'email', 'age', 'weight', 'height'],
+				},
+				{
+					model: Plan,
+					as: 'plan',
+					attributes: ['id', 'title', 'duration', 'price'],
+				},
+			],
+		});
+
+		res.json(enrollments);
+	}
+
 	async update(req, res) {
 		const schema = Yup.object().shape({
 			student_id: Yup.number(),
@@ -148,9 +170,9 @@ class EnrollmentController {
 
 		const date = req.body.start_date;
 
-		const time = moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
+		// const time = moment(date, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
-		const start_date = startOfDay(parseISO(time));
+		const start_date = startOfDay(parseISO(date));
 
 		if (start_date && start_date !== enrollment.start_date) {
 			if (isBefore(start_date, startOfDay(new Date()))) {

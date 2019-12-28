@@ -76,7 +76,7 @@ class StudentHelpOrderController {
 			attributes: ['id', 'question', 'answer', 'answer_at'],
 		});
 
-		return res.json(helpOrders);
+		return res.json(helpOrders.reverse());
 	}
 }
 
