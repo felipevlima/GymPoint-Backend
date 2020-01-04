@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
 import { parseISO, isBefore, addMonths, startOfDay, endOfDay } from 'date-fns';
 
 import Enrollment from '../models/Enrollment';
@@ -96,7 +97,17 @@ class EnrollmentController {
 	}
 
 	async index(req, res) {
-		const enrolments = await Enrollment.findAll({
+		const { q } = req.query;
+		const where = {};
+
+		if (q) {
+			where.id = {
+				[Op.eq]: q,
+			};
+		}
+
+		const enrollments = await Enrollment.findAll({
+			where,
 			attributes: ['id', 'start_date', 'end_date', 'price', 'active'],
 			include: [
 				{
@@ -112,7 +123,7 @@ class EnrollmentController {
 			],
 		});
 
-		return res.json({ enrolments });
+		return res.json(enrollments);
 	}
 
 	async find(req, res) {

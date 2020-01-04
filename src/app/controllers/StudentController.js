@@ -90,21 +90,22 @@ class StudentController {
 	}
 
 	async index(req, res) {
-		const { q: studentName } = req.query;
+		const { q } = req.query;
+		const where = {};
 
-		const response = studentName
-			? await Student.findAll({
-					where: {
-						name: {
-							[Op.like]: studentName,
-						},
-					},
-			  })
-			: await Student.findAll();
+		if (q) {
+			where.name = {
+				[Op.like]: `%${q}%`,
+			};
+		}
 
-		response.sort((a, b) => a.name.localeCompare(b.name));
+		const students = await Student.findAll({
+			where: where || null,
+		});
 
-		res.json(response);
+		students.sort((a, b) => a.name.localeCompare(b.name));
+
+		return res.json(students);
 	}
 
 	async find(req, res) {
